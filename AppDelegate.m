@@ -11,11 +11,16 @@
 
 
 @implementation AppDelegate
-@synthesize label, window;
+@synthesize destination, source, window;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	NSLog(@"here");
-	MDMarkdownParser *parser = [[MDMarkdownParser alloc] init];
-	[label setStringValue:[parser sayHello]];
+-(void)applicationDidFinishLaunching:(NSNotification *)aNotification{
+	NSFont *monaco = [NSFont fontWithName:@"Monaco" size:12.0];
+	[source setFont:monaco];
+	[destination setFont:monaco];
+}
+
+-(IBAction)translate:(NSNotification *)aNotification {
+	MDMarkdownParser *parser = [[[MDMarkdownParser alloc]init] autorelease];
+	[destination setString:[parser detabString:[source string]]];
 }
 @end
