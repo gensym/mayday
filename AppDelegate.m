@@ -21,6 +21,6 @@
 
 -(IBAction)translate:(NSNotification *)aNotification {
 	MDMarkdownParser *parser = [[[MDMarkdownParser alloc]init] autorelease];
-	[destination setString:[parser detabString:[source string]]];
+	[destination setString:[parser cleanWhitespaceOnlyLinesInString:[parser detabString:[source string]]]];
 }
 @end

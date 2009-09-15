@@ -18,4 +18,5 @@
 	
 }
 -(NSString *)detabString:(NSString *)aString;
+-(NSString *)cleanWhitespaceOnlyLinesInString:(NSString *)aString;
 @end

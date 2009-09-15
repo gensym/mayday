@@ -10,7 +10,7 @@
 //#import "MDMarkdownParserPrivate.h"
 
 @interface MDMarkdownParser ()
--(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner*, NSMutableString*))block;
+-(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner *aScanner, NSMutableString *anAccumulator))block;
 @end
 @implementation MDMarkdownParser
 -(id)init{
@@ -53,6 +53,17 @@
 	return [self scanLinesOfString:aString withBlock:detabScannerIntoAccumulator];
 }
 
+
+-(NSString *)cleanWhitespaceOnlyLinesInString:(NSString *)aString{
+	return [self scanLinesOfString:aString withBlock:^(NSScanner *aScanner, NSMutableString *anAccumulator) {
+		[aScanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:NULL];
+		if(![aScanner isAtEnd]){
+			[anAccumulator appendString:[aScanner string]];
+		}
+		[anAccumulator appendString:@"\n"];
+		
+	}];
+}
 
 #pragma mark -
 -(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner*, NSMutableString*))block{
