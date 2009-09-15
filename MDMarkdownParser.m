@@ -7,7 +7,11 @@
 //
 
 #import "MDMarkdownParser.h"
+//#import "MDMarkdownParserPrivate.h"
 
+@interface MDMarkdownParser ()
+-(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner*, NSMutableString*))block;
+@end
 @implementation MDMarkdownParser
 -(id)init{
 	if(self=[super init]){
@@ -28,6 +32,7 @@
 
 
 -(NSString *)detabString:(NSString *)aString{	
+	//We could declair this as an argument if it weren't recursive. A recursive block demands to be declaired with a "__block" prefix (which, as far as I know, you can't do in a parameter list).
 	__block void (^detabScannerIntoAccumulator)(NSScanner*, NSMutableString*);
 	detabScannerIntoAccumulator = ^(NSScanner *aScanner, NSMutableString *anAccumulator){
 		NSString *into;
@@ -44,19 +49,25 @@
 			[anAccumulator appendString:@"\n"];
 		}
 	};
-		
-	NSMutableString *stringAccumulator = [[[NSMutableString alloc]init]autorelease];
 
+	return [self scanLinesOfString:aString withBlock:detabScannerIntoAccumulator];
+}
+
+
+#pragma mark -
+-(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner*, NSMutableString*))block{
+	NSMutableString *stringAccumulator = [[[NSMutableString alloc]init]autorelease];
+	
 	[aString enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
 		NSMutableString *lineAccumulator = [[NSMutableString alloc]init];
-
+		
 		NSScanner *scanner = [[NSScanner alloc] initWithString:line];
 		NSCharacterSet *nullset = [[NSCharacterSet alloc]init];
 		[scanner setCharactersToBeSkipped:nullset];
 		[nullset release];
-
-		detabScannerIntoAccumulator(scanner, lineAccumulator);
-
+		
+		block(scanner, lineAccumulator);
+		
 		[scanner release];	
 		[stringAccumulator appendString:lineAccumulator];
 		[lineAccumulator release];			
@@ -64,6 +75,5 @@
 	
 	return stringAccumulator;
 }
-
 
 @end
