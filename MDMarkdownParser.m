@@ -1,13 +1,7 @@
-//
-//  MDMarkdownParser.m
-//  MayDay
-//
-//  Created by Joshua Emmons on 9/14/09.
-//  Copyright 2009 Journey Corps. All rights reserved.
-//
 
 #import "MDMarkdownParser.h"
-//#import "MDMarkdownParserPrivate.h"
+#import "MDMarkdownAssembler.h"
+#import <ParseKit/ParseKit.h>
 
 @interface MDMarkdownParser ()
 -(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner *aScanner, NSMutableString *anAccumulator))block;
@@ -28,6 +22,19 @@
 	[titles release]; titles = nil;
 	[htmlBlocks release]; htmlBlocks = nil;
 	[super dealloc];
+}
+
+
+-(NSString *)parseMarkdown:(NSString *)markdownString{
+	MDMarkdownAssembler *assembler = [[[MDMarkdownAssembler alloc]init]autorelease];
+	NSURL *frameworkURL = [[[NSBundle mainBundle] privateFrameworksURL] URLByAppendingPathComponent:@"MayDay.framework"];
+	NSBundle *frameworkBundle = [NSBundle bundleWithURL:frameworkURL];
+	NSURL *grammarURL = [frameworkBundle URLForResource:@"Markdown" withExtension:@"grammar"];
+	NSString *grammar = [NSString stringWithContentsOfURL:grammarURL encoding:NSUTF8StringEncoding error:NULL];
+
+	PKParser *parser = [[PKParserFactory factory] parserFromGrammar:grammar assembler:assembler];
+	[parser parse:markdownString];
+	return [assembler assembledString];
 }
 
 
@@ -65,9 +72,11 @@
 	}];
 }
 
+
+
 #pragma mark -
 -(NSString *)scanLinesOfString:(NSString *)aString withBlock:(void (^)(NSScanner*, NSMutableString*))block{
-	NSMutableString *stringAccumulator = [[[NSMutableString alloc]init]autorelease];
+	NSMutableString *stringAccumulator = [[NSMutableString alloc]init];
 	
 	[aString enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
 		NSMutableString *lineAccumulator = [[NSMutableString alloc]init];
@@ -84,7 +93,7 @@
 		[lineAccumulator release];			
 	}];
 	
-	return stringAccumulator;
+	return [stringAccumulator autorelease];
 }
 
 @end

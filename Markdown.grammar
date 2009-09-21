@@ -1,0 +1,13 @@
+@start = (paragraph|test)+;
+
+newline = '\n';
+s = ' ';
+lineContent = Word | Symbol;
+
+nonBreakingLine = lineContent+ newline;
+breakingLine = lineContent+ s s (s)* newline;
+line = nonBreakingLine | breakingLine;
+
+paragraph = line+ newline;
+
+test = Number;
